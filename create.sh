@@ -25,15 +25,20 @@ if pct status "$CTID" &>/dev/null; then
 fi
 
 # --- Download Ubuntu template if missing ---
-if [ ! -f "$TEMPLATE_CACHE/$TEMPLATE" ]; then
-  echo "Ubuntu template not found. Downloading..."
+TEMPLATE_PATH="$TEMPLATE_CACHE/$TEMPLATE"
+if [ ! -f "$TEMPLATE_PATH" ]; then
+  echo "Ubuntu template not found at $TEMPLATE_PATH. Downloading..."
   pveam update
   pveam download local "$TEMPLATE"
+fi
+if [ ! -f "$TEMPLATE_PATH" ]; then
+  echo "Error: Template still missing at $TEMPLATE_PATH. Check 'pveam available' and storage." >&2
+  exit 1
 fi
 
 echo "Creating LXC container..."
 
-pct create $CTID "$TEMPLATE_CACHE/$TEMPLATE" \
+pct create $CTID "$TEMPLATE_PATH" \
   --hostname $HOSTNAME \
   --cores $CORES \
   --memory $RAM \
